@@ -1,5 +1,3 @@
-# P1
-
 # 🛍️ E-Commerce con IA Generativa
 
 Este proyecto es una plataforma de e-commerce que facilita la creación de publicaciones de productos usando inteligencia artificial generativa. El usuario solo debe subir una imagen, y el sistema genera automáticamente:
