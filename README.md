@@ -36,7 +36,7 @@ The proposed system is a web-based e-commerce platform that leverages generative
 
 This initial version will serve as a Minimum Viable Product (MVP) focused on validating the usefulness and usability of the core AI-powered publishing feature.
 
-### Target Group
+### 1.3 Target Group
 
 The application is designed to serve two primary user groups:
 
