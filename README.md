@@ -2,7 +2,7 @@
 
 Este proyecto es una plataforma de e-commerce que facilita la creación de publicaciones de productos usando inteligencia artificial generativa. El usuario solo debe subir una imagen, y el sistema genera automáticamente:
 
-- Un título atractivo  
+- Un título atractivo (test)
 - Una descripción persuasiva  
 - Una categoría sugerida  
 - Etiquetas (tags) útiles para SEO  
