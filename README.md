@@ -102,120 +102,15 @@ python manage.py migrate
 python manage.py setup_categories
 ```
 
-### 6. **Create Admin User**
-```bash
-python manage.py createsuperuser
-```
 
-### 7. **Run Development Server**
+### 6. **Run Development Server**
 ```bash
 python manage.py runserver
 ```
 
-### 8. **Access the Platform**
+### 7. **Access the Platform**
 - **Main Site**: [http://localhost:8000](http://localhost:8000)
 - **Admin Panel**: [http://localhost:8000/admin](http://localhost:8000/admin)
 
----
-
-## 📁 Project Structure
-```
-E-Commerce-con-IA-Generativa/
-├── productplatform/          # Django project settings
-├── products/                 # Main app
-│   ├── models.py            # Database models (Category, Product)
-│   ├── views.py             # Business logic and views
-│   ├── forms.py             # Form handling
-│   ├── admin.py             # Admin interface configuration
-│   └── templates/           # HTML templates
-├── manage.py                # Django management script
-├── requirements.txt          # Python dependencies
-└── README.md               # This file
-```
-
----
-
-## 🗄️ Database Models
-
-### Category
-- `name`: Category name (max 100 characters)
-- `description`: Optional category description
-
-### Product
-- `title`: Product title (max 200 characters)
-- `description`: Product description
-- `price`: Decimal price field
-- `category`: Foreign key to Category
-- `image`: Product image upload
-- `seller`: Foreign key to User (seller)
-- `status`: Draft or Published
-- `created_at`: Creation timestamp
-- `updated_at`: Last update timestamp
-
----
-
-## 🔧 Available Commands
-
-### Management Commands
-- `python manage.py setup_categories` - Initialize default product categories
-- `python manage.py createsuperuser` - Create admin user
-- `python manage.py migrate` - Apply database migrations
-- `python manage.py runserver` - Start development server
-
----
-
-## 🌐 API Endpoints
-
-| URL | Method | Description | Authentication |
-|-----|--------|-------------|----------------|
-| `/` | GET | Home page with product listings | Public |
-| `/register/` | GET/POST | User registration | Public |
-| `/login/` | GET/POST | User login | Public |
-| `/logout/` | GET | User logout | Authenticated |
-| `/product/create/` | GET/POST | Create new product | Authenticated |
-| `/product/<id>/` | GET | View product details | Public |
-| `/product/<id>/edit/` | GET/POST | Edit product | Authenticated (owner) |
-| `/product/<id>/delete/` | GET/POST | Delete product | Authenticated (owner) |
-| `/admin/` | GET | Admin interface | Superuser |
-
----
-
-## 🚀 Deployment
-
-### Production Considerations
-- Change `DEBUG = False` in settings.py
-- Use PostgreSQL or MySQL instead of SQLite
-- Set up proper `SECRET_KEY`
-- Configure `ALLOWED_HOSTS`
-- Set up static file serving
-- Use environment variables for sensitive data
-
----
-
-## 🤝 Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
----
-
-## 📝 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
----
-
-## 📞 Support
-
-If you encounter any issues or have questions:
-- Check the Django documentation
-- Review the project structure and models
-- Ensure all dependencies are properly installed
-- Verify database migrations are applied
-
----
 
 **Note**: This is a Django-based **AI-powered e-commerce platform** that revolutionizes product listing creation. The AI features are the core innovation that sets this platform apart from traditional e-commerce solutions. This is not just another marketplace - it's an intelligent tool that automates the most tedious part of selling online.
