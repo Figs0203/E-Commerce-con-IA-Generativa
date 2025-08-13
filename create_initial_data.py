@@ -1,4 +1,15 @@
 #!/usr/bin/env python
+"""
+⚠️  ARCHIVO OBSOLETO - NO USAR ⚠️
+
+Este archivo ha sido reemplazado por un sistema automático mejor.
+
+✅ USAR EN SU LUGAR:
+   python manage.py setup_categories
+
+📚 Ver SETUP.md para más información
+"""
+
 import os
 import sys
 import django

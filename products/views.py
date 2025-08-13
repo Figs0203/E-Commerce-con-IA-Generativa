@@ -83,7 +83,10 @@ def create_product(request):
     else:
         form = ProductForm()
     
-    return render(request, 'create_product.html', {'form': form})
+    # Obtener todas las categorías para el formulario
+    categories = Category.objects.all()
+    
+    return render(request, 'create_product.html', {'form': form, 'categories': categories})
 
 @login_required
 def edit_product(request, pk):
@@ -97,7 +100,10 @@ def edit_product(request, pk):
     else:
         form = ProductForm(instance=product)
     
-    return render(request, 'edit_product.html', {'form': form, 'product': product})
+    # Obtener todas las categorías para el formulario
+    categories = Category.objects.all()
+    
+    return render(request, 'edit_product.html', {'form': form, 'product': product, 'categories': categories})
 
 @login_required
 def delete_product(request, pk):
@@ -112,3 +118,4 @@ def delete_product(request, pk):
 def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk, status='published')
     return render(request, 'product_detail.html', {'product': product})
+
