@@ -64,6 +64,8 @@ This platform solves the **#1 pain point** for online sellers: **creating detail
 ---
 
 ##  Quick Start Guide
+> **Note:** This guide assumes basic familiarity with Python and Django.  
+> If you are new to Django, you can still follow along — each step is explained clearly.
 
 ### Prerequisites
 - Python 3.8 or higher
