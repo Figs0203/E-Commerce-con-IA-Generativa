@@ -3,7 +3,6 @@
 ## Description
 This project is an **AI-powered e-commerce platform** built with Django that revolutionizes how sellers create product listings. Instead of manually writing descriptions and labels, sellers can simply upload a product photo, and our AI system will automatically:
 
-- **Analyze product images** using computer vision
 - **Generate detailed product descriptions** automatically
 - **Suggest relevant product labels and tags** 
 - **Identify product categories** based on visual content
