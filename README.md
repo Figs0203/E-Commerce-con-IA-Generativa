@@ -93,23 +93,28 @@ source env/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. **Apply Database Migrations**
+### 5. **Make Migrations**
+```bash
+python manage.py makemigrations
+```
+
+### 6. **Apply Database Migrations**
 ```bash
 python manage.py migrate
 ```
 
-### 5. **Set Up Default Categories**
+### 7. **Set Up Default Categories**
 ```bash
 python manage.py setup_categories
 ```
 
 
-### 6. **Run Development Server**
+### 8. **Run Development Server**
 ```bash
 python manage.py runserver
 ```
 
-### 7. **Access the Platform**
+### 9. **Access the Platform**
 - **Main Site**: [http://localhost:8000](http://localhost:8000)
 - **Admin Panel**: [http://localhost:8000/admin](http://localhost:8000/admin)
 
