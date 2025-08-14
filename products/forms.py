@@ -1,7 +1,16 @@
 from django import forms
-from .models import Product
+from .models import Product, Tag
 
 class ProductForm(forms.ModelForm):
+    tags_input = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'tecnología, gadgets, electrónica'
+        }),
+        help_text="Separa las etiquetas con comas"
+    )
+    
     class Meta:
         model = Product
         fields = ['title', 'description', 'price', 'category', 'image', 'status']

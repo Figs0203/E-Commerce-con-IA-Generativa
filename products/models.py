@@ -1,7 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import User
-
-# Create your models here.
+from django.core.validators import MinLengthValidator
+from django.utils.text import slugify
 
 class Category(models.Model):
     name = models.CharField(max_length=100)
@@ -12,6 +12,23 @@ class Category(models.Model):
     
     class Meta:
         verbose_name_plural = "Categories"
+
+#Tags for products
+class Tag(models.Model):
+    name = models.CharField(max_length=50, unique=True, validators=[MinLengthValidator(2)])
+    slug = models.SlugField(max_length=50, unique=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            self.slug = slugify(self.name)
+        super().save(*args, **kwargs)
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        ordering = ['name']
 
 class Product(models.Model):
     STATUS_CHOICES = [
@@ -26,6 +43,7 @@ class Product(models.Model):
     image = models.ImageField(upload_to='products/images/', verbose_name="Imagen del producto")
     seller = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Vendedor")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', verbose_name="Estado")
+    tags = models.ManyToManyField(Tag, blank=True, verbose_name="Etiquetas")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualización")
     
