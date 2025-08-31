@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Plataforma de Productos{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+    <!-- Navbar compartido -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">Productos Online</a>
+            <div class="navbar-nav ms-auto">
+                {% if user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'create_product' %}">Crear Producto</a>
+                    <span class="navbar-text me-3">Hola, {{ user.username }}</span>
+                    <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
+                    <a class="nav-link" href="{% url 'about' %}">Sobre Nosotros</a>
+                {% endif %}
+            </div>
+        </div>
+    </nav>
+
+    <!-- Contenido de cada página -->
+    <div class="container mt-4">
+        {% block content %}{% endblock %}
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
