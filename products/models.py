@@ -42,7 +42,7 @@ class Product(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE, verbose_name="Categoría")
     image = models.ImageField(upload_to='products/images/', verbose_name="Imagen del producto")
     seller = models.ForeignKey(User, on_delete=models.CASCADE, verbose_name="Vendedor")
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='draft', verbose_name="Estado")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Borrador', verbose_name="Estado")
     tags = models.ManyToManyField(Tag, blank=True, verbose_name="Etiquetas")
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="Fecha de creación")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Fecha de actualización")

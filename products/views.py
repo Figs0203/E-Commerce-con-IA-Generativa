@@ -6,6 +6,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
 from .models import Product, Category
 from .forms import ProductForm
+from django.contrib.auth.models import User
 
 def home(request):
     searchTerm = request.GET.get('searchProduct')
@@ -119,3 +120,10 @@ def product_detail(request, pk):
     product = get_object_or_404(Product, pk=pk, status='published')
     return render(request, 'product_detail.html', {'product': product})
 
+def profile(request):
+    profile = request.user
+    return render(request, 'profile.html', {'profile': profile})
+
+def products(request):
+    products = Product.objects.filter(seller=request.user)
+    return render(request, 'products.html', {'products': products})
