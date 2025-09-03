@@ -7,6 +7,8 @@ from django.contrib import messages
 from .models import Product, Category
 from .forms import ProductForm
 from django.contrib.auth.models import User
+from .models import Product, Category, Wishlist
+
 
 def home(request):
     searchTerm = request.GET.get('searchProduct')
@@ -117,8 +119,47 @@ def delete_product(request, pk):
     return render(request, 'delete_product.html', {'product': product})
 
 def product_detail(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    in_wishlist = False
+    if request.user.is_authenticated:
+        in_wishlist = Wishlist.objects.filter(user=request.user, product=product).exists()
+
+    return render(request, 'product_detail.html', {
+        'product': product,
+        'in_wishlist': in_wishlist
+    })
+
+def toggle_wishlist(request, pk):
     product = get_object_or_404(Product, pk=pk, status='published')
-    return render(request, 'product_detail.html', {'product': product})
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+
+@login_required
+def my_wishlist(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
+    return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
+
+    if not created:
+        wishlist_item.delete()  # si ya existía, se elimina (toggle)
+    return redirect('product_detail', pk=pk)
+
+@login_required
+def my_wishlist(request):
+    wishlist_items = Wishlist.objects.filter(user=request.user).select_related("product")
+    return render(request, 'my_wishlist.html', {"wishlist_items": wishlist_items})
+
+@login_required
+def toggle_wishlist(request, pk):
+    product = get_object_or_404(Product, pk=pk)
+
+    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
+
+    if not created:
+        # Si ya existía, lo quitamos
+        wishlist_item.delete()
+
+    return redirect('product_detail', pk=pk)
+
 
 def profile(request):
     profile = request.user
