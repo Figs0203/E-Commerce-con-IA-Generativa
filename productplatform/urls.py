@@ -21,7 +21,6 @@ from products import views as productViews
 from django.conf.urls.static import static
 from django.conf import settings
 
-
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', productViews.home, name='home'),
@@ -35,7 +34,11 @@ urlpatterns = [
     path('product/<int:pk>/', productViews.product_detail, name='product_detail'),
     path('about/', TemplateView.as_view(template_name='about.html'), name='about'),
     path('', include('products.urls')),
-
+    
+    # AI API endpoints
+    path('api/ai/', include('AI_API.urls')),
+    path('ai-dashboard/', include('AI_API.urls', namespace='ai_dashboard')),
+    
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

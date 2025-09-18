@@ -40,7 +40,10 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'drf_yasg',
     'products',
+    'AI_API',
 ]
 
 MIDDLEWARE = [
@@ -118,9 +121,92 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.2/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/static/'
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.2/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# Django REST Framework configuration
+# REST_FRAMEWORK = {
+#     'DEFAULT_PERMISSION_CLASSES': [
+#         'rest_framework.permissions.AllowAny',
+#     ],
+#     'DEFAULT_RENDERER_CLASSES': [
+#         'rest_framework.renderers.JSONRenderer',
+#     ],
+#     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+#     'PAGE_SIZE': 20,
+# }
+
+# Swagger/OpenAPI configuration
+# SWAGGER_SETTINGS = {
+#     'SECURITY_DEFINITIONS': {
+#         'Bearer': {
+#             'type': 'apiKey',
+#             'name': 'Authorization',
+#             'in': 'header'
+#         }
+#     },
+#     'USE_SESSION_AUTH': True,
+#     'JSON_EDITOR': True,
+#     'SUPPORTED_SUBMIT_METHODS': [
+#         'get',
+#         'post',
+#         'put',
+#         'delete',
+#         'patch'
+#     ],
+#     'OPERATIONS_SORTER': 'alpha',
+#     'TAGS_SORTER': 'alpha',
+#     'DOC_EXPANSION': 'list',
+#     'DEEP_LINKING': True,
+#     'SHOW_EXTENSIONS': True,
+#     'SHOW_COMMON_EXTENSIONS': True,
+# }
+
+# AI API Configuration
+LIGHTNING_AI_ENDPOINT = os.getenv('LIGHTNING_AI_ENDPOINT', 'https://8001-01k4ap2fswtrsc3fyamsj261fp.cloudspaces.litng.ai')
+LIGHTNING_AI_API_KEY = os.getenv('LIGHTNING_AI_API_KEY', 'gemma3-litserve')
+
+# Public domain configuration for AI image URLs
+PUBLIC_DOMAIN = os.getenv('PUBLIC_DOMAIN', 'localhost:8000')  # Cambiar por tu dominio público
+PUBLIC_PROTOCOL = os.getenv('PUBLIC_PROTOCOL', 'http')  # Cambiar a 'https' en producción
+
+# Logging configuration
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': BASE_DIR / 'logs' / 'ai_api.log',
+            'formatter': 'verbose',
+        },
+        'console': {
+            'level': 'DEBUG',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple',
+        },
+    },
+    'loggers': {
+        'AI_API': {
+            'handlers': ['file', 'console'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
