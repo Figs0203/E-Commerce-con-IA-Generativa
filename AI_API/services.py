@@ -3,7 +3,7 @@ import time
 from typing import Dict, List, Any
 from django.conf import settings
 from django.utils import timezone
-from .models import AIRequest, AIUsageStats, AIConfiguration
+from .models import AIRequest, AIConfiguration
 # Configuración directa desde settings
 LIGHTNING_AI_ENDPOINT = getattr(settings, 'LIGHTNING_AI_ENDPOINT', 'https://8001-01k4ap2fswtrsc3fyamsj261fp.cloudspaces.litng.ai')
 LIGHTNING_AI_API_KEY = getattr(settings, 'LIGHTNING_AI_API_KEY', 'gemma3-litserve')
@@ -141,8 +141,7 @@ class Gemma3Service:
                 ai_request.processing_time = processing_time
                 ai_request.save()
                 
-                # Actualizar estadísticas
-                self._update_usage_stats(user, request_type, tokens_used, True)
+                # Estadísticas eliminadas - no necesarias para funcionalidad básica
                 
                 return {
                     'success': True,
@@ -164,7 +163,7 @@ class Gemma3Service:
             ai_request.processing_time = processing_time
             ai_request.save()
             
-            self._update_usage_stats(user, request_type, 0, False)
+            # Estadísticas eliminadas
             
             logger.error("Gemma3 API request failed: %s", error_msg)
             
@@ -184,7 +183,7 @@ class Gemma3Service:
             ai_request.processing_time = processing_time
             ai_request.save()
             
-            self._update_usage_stats(user, request_type, 0, False)
+            # Estadísticas eliminadas
             
             logger.error("Unexpected error in Gemma3 service: %s", error_msg)
             
@@ -195,47 +194,7 @@ class Gemma3Service:
                 'request_id': ai_request.id
             }
     
-    def _update_usage_stats(self, user, request_type: str, tokens_used: int, success: bool):
-        """Actualiza las estadísticas de uso"""
-        try:
-            today = timezone.now().date()
-            stats, created = AIUsageStats.objects.get_or_create(
-                user=user,
-                date=today,
-                defaults={
-                    'total_requests': 0,
-                    'successful_requests': 0,
-                    'failed_requests': 0,
-                    'total_tokens_used': 0,
-                    'product_description_requests': 0,
-                    'image_analysis_requests': 0,
-                    'text_generation_requests': 0,
-                    'chat_requests': 0,
-                }
-            )
-            
-            stats.total_requests += 1
-            stats.total_tokens_used += tokens_used
-            
-            if success:
-                stats.successful_requests += 1
-            else:
-                stats.failed_requests += 1
-            
-            # Actualizar contador por tipo
-            if request_type == 'product_description':
-                stats.product_description_requests += 1
-            elif request_type == 'image_analysis':
-                stats.image_analysis_requests += 1
-            elif request_type == 'text_generation':
-                stats.text_generation_requests += 1
-            elif request_type == 'chat':
-                stats.chat_requests += 1
-            
-            stats.save()
-            
-        except Exception as e:
-            logger.error("Error updating usage stats: %s", e)
+    # Método _update_usage_stats eliminado - no necesario para funcionalidad básica
     
     def health_check(self) -> Dict[str, Any]:
         """
@@ -277,92 +236,7 @@ class ProductAIService:
     def __init__(self):
         self.gemma_service = Gemma3Service()
     
-    def generate_product_description(self, product_name: str, image_urls: List[str] = None,
-                                   category: str = None, user=None) -> Dict[str, Any]:
-        """
-        Genera una descripción de producto usando IA
-        """
-        prompt = f"Genera una descripción atractiva y profesional para el producto '{product_name}'"
-        
-        if category:
-            prompt += f" de la categoría '{category}'"
-        
-        prompt += ". La descripción debe ser convincente para clientes potenciales, destacando características clave y beneficios. Máximo 200 palabras."
-        
-        return self.gemma_service.generate_response(
-            prompt=prompt,
-            image_urls=image_urls,
-            max_tokens=300,
-            temperature=0.7,
-            request_type='product_description',
-            user=user
-        )
-    
-    def generate_product_title(self, description: str, image_urls: List[str] = None,
-                              category: str = None, user=None) -> Dict[str, Any]:
-        """
-        Genera un título optimizado para SEO para un producto
-        """
-        prompt = "Genera un título atractivo y optimizado para SEO para un producto"
-        
-        if category:
-            prompt += f" de la categoría '{category}'"
-        
-        prompt += f" con la siguiente descripción: '{description}'. El título debe ser conciso, atractivo y contener palabras clave relevantes. Máximo 60 caracteres."
-        
-        return self.gemma_service.generate_response(
-            prompt=prompt,
-            image_urls=image_urls,
-            max_tokens=100,
-            temperature=0.8,
-            request_type='text_generation',
-            user=user
-        )
-    
-    def suggest_product_tags(self, product_name: str, description: str,
-                           image_urls: List[str] = None, category: str = None,
-                           user=None) -> Dict[str, Any]:
-        """
-        Sugiere tags relevantes para un producto
-        """
-        prompt = f"Sugiere 5-8 tags relevantes para el producto '{product_name}'"
-        
-        if category:
-            prompt += f" de la categoría '{category}'"
-        
-        prompt += f" con descripción: '{description}'. Los tags deben ser palabras clave útiles para búsqueda y categorización. Devuelve solo los tags separados por comas."
-        
-        return self.gemma_service.generate_response(
-            prompt=prompt,
-            image_urls=image_urls,
-            max_tokens=150,
-            temperature=0.6,
-            request_type='text_generation',
-            user=user
-        )
-    
-    def analyze_product_image(self, image_url: str, product_name: str = None,
-                            user=None) -> Dict[str, Any]:
-        """
-        Analiza una imagen de producto y proporciona información relevante
-        """
-        prompt = "Analiza esta imagen de producto y proporciona información sobre:"
-        prompt += "\n1. Tipo de producto"
-        prompt += "\n2. Características visuales principales"
-        prompt += "\n3. Posible categoría"
-        prompt += "\n4. Sugerencias de descripción"
-        
-        if product_name:
-            prompt += f"\n\nEl producto se llama: '{product_name}'"
-        
-        return self.gemma_service.generate_response(
-            prompt=prompt,
-            image_urls=[image_url],
-            max_tokens=400,
-            temperature=0.7,
-            request_type='image_analysis',
-            user=user
-        )
+    # Funciones individuales eliminadas - solo se usa analyze_product_complete()
     
     def analyze_product_complete(self, image_url: str, user=None) -> Dict[str, Any]:
         """

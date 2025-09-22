@@ -1,7 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from django.utils import timezone
-import json
 
 
 class AIRequest(models.Model):
@@ -60,34 +58,7 @@ class AIRequest(models.Model):
         return self.has_images and self.prompt
 
 
-class AIUsageStats(models.Model):
-    """
-    Modelo para estadísticas de uso de la IA
-    """
-    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    date = models.DateField(default=timezone.now)
-    
-    # Contadores
-    total_requests = models.IntegerField(default=0)
-    successful_requests = models.IntegerField(default=0)
-    failed_requests = models.IntegerField(default=0)
-    total_tokens_used = models.IntegerField(default=0)
-    
-    # Por tipo de request
-    product_description_requests = models.IntegerField(default=0)
-    image_analysis_requests = models.IntegerField(default=0)
-    text_generation_requests = models.IntegerField(default=0)
-    chat_requests = models.IntegerField(default=0)
-    
-    class Meta:
-        unique_together = ['user', 'date']
-        ordering = ['-date']
-        verbose_name = 'AI Usage Stats'
-        verbose_name_plural = 'AI Usage Stats'
-    
-    def __str__(self):
-        user_str = self.user.username if self.user else 'Anonymous'
-        return f"AI Usage Stats - {user_str} - {self.date}"
+# Eliminado AIUsageStats - No necesario para funcionalidad básica
 
 
 class AIConfiguration(models.Model):
@@ -114,33 +85,4 @@ class AIConfiguration(models.Model):
         return f"AI Config: {self.name} - {'Active' if self.is_active else 'Inactive'}"
 
 
-class ProductAIGeneration(models.Model):
-    """
-    Modelo específico para generaciones de IA relacionadas con productos
-    """
-    product = models.ForeignKey('products.Product', on_delete=models.CASCADE, related_name='ai_generations')
-    ai_request = models.ForeignKey(AIRequest, on_delete=models.CASCADE)
-    
-    generation_type = models.CharField(max_length=50, choices=[
-        ('title', 'Título'),
-        ('description', 'Descripción'),
-        ('tags', 'Tags'),
-        ('category_suggestion', 'Sugerencia de Categoría'),
-        ('price_suggestion', 'Sugerencia de Precio'),
-    ])
-    
-    original_content = models.TextField(blank=True, help_text="Contenido original antes de la IA")
-    ai_generated_content = models.TextField(help_text="Contenido generado por IA")
-    is_approved = models.BooleanField(default=False, help_text="Si el usuario aprobó usar el contenido generado")
-    is_used = models.BooleanField(default=False, help_text="Si el contenido se aplicó al producto")
-    
-    created_at = models.DateTimeField(auto_now_add=True)
-    approved_at = models.DateTimeField(null=True, blank=True)
-    
-    class Meta:
-        ordering = ['-created_at']
-        verbose_name = 'Product AI Generation'
-        verbose_name_plural = 'Product AI Generations'
-    
-    def __str__(self):
-        return f"AI Generation for {self.product.name} - {self.generation_type}"
+# Eliminado ProductAIGeneration - No necesario para funcionalidad básica

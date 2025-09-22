@@ -1,68 +1,15 @@
-from django.shortcuts import get_object_or_404
-from django.contrib.auth.models import User
-from django.db.models import Q
+from rest_framework import status
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import AllowAny
+from rest_framework.response import Response
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
-from .models import AIRequest, AIUsageStats, AIConfiguration, ProductAIGeneration
 from .services import Gemma3Service, ProductAIService
-from .serializers import (
-    AIRequestSerializer, AIUsageStatsSerializer, 
-    AIConfigurationSerializer, ProductAIGenerationSerializer
-)
 import logging
 
 logger = logging.getLogger(__name__)
 
-
-
-def generate_response(request):
-    """
-    Genera una respuesta usando el modelo Gemma 3
-    """
-    try:
-        prompt = request.data.get('prompt')
-        if not prompt:
-            return Response(
-                {'error': 'El campo prompt es requerido'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        image_urls = request.data.get('image_urls', [])
-        max_tokens = request.data.get('max_tokens')
-        temperature = request.data.get('temperature')
-        request_type = request.data.get('request_type', 'chat')
-        
-        # Validar URLs de imágenes
-        if image_urls and not isinstance(image_urls, list):
-            return Response(
-                {'error': 'image_urls debe ser una lista'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
-        
-        # Obtener usuario si está autenticado
-        user = request.user if request.user.is_authenticated else None
-        
-        # Generar respuesta
-        gemma_service = Gemma3Service()
-        result = gemma_service.generate_response(
-            prompt=prompt,
-            image_urls=image_urls,
-            max_tokens=max_tokens,
-            temperature=temperature,
-            request_type=request_type,
-            user=user
-        )
-        
-        if result['success']:
-            return Response(result, status=status.HTTP_200_OK)
-        else:
-            return Response(result, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-    except Exception as e:
-        logger.error(f"Error in generate_response: {e}")
-        return Response(
-            {'error': 'Error interno del servidor'}, 
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR
-        )
 
 
 @swagger_auto_schema(
@@ -89,4 +36,74 @@ def health_check(request):
         return Response(
             {'status': 'unhealthy', 'error': str(e)}, 
             status=status.HTTP_503_SERVICE_UNAVAILABLE
+        )
+
+
+@swagger_auto_schema(
+    method='post',
+    operation_description="Analiza una imagen de producto subida directamente y genera información completa",
+    request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'image': openapi.Schema(type=openapi.TYPE_FILE, description='Archivo de imagen del producto'),
+        },
+        required=['image']
+    ),
+)
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def analyze_product_image_upload(request):
+    """
+    Analiza una imagen de producto subida directamente y genera información completa para auto-llenar formulario
+    """
+    try:
+        image_file = request.FILES.get('image')
+        
+        if not image_file:
+            return Response(
+                {'error': 'No se proporcionó imagen'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Convertir imagen a base64 para enviar directamente
+        import base64
+        
+        # Leer el contenido de la imagen
+        image_content = image_file.read()
+        
+        # Convertir a base64
+        image_base64 = base64.b64encode(image_content).decode('utf-8')
+        
+        # Determinar el tipo MIME
+        content_type = image_file.content_type or 'image/jpeg'
+        
+        # Crear URL de datos (data URL)
+        image_url = f"data:{content_type};base64,{image_base64}"
+        
+        # Log para debugging
+        logger.info(f"Image converted to data URL, size: {len(image_base64)} chars")
+        
+        # Realizar análisis completo
+        ai_service = ProductAIService()
+        result = ai_service.analyze_product_complete(image_url, user=request.user)
+        
+        if result['success']:
+            return Response({
+                'success': True,
+                'data': result['data'],
+                'request_id': result.get('request_id'),
+                'processing_time': result.get('processing_time')
+            })
+        else:
+            return Response({
+                'success': False,
+                'error': result.get('error', 'Error en el análisis de IA'),
+                'raw_response': result.get('raw_response')
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    except Exception as e:
+        logger.error(f"Error in analyze_product_image_upload: {e}")
+        return Response(
+            {'error': 'Error interno del servidor'}, 
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR
         )
