@@ -11,10 +11,6 @@ MODEL_NAME = 'google/gemma-3-4b-it'
 DEFAULT_MAX_TOKENS = 256
 DEFAULT_TEMPERATURE = 0.7
 DEFAULT_TIMEOUT = 300
-import logging
-
-logger = logging.getLogger(__name__)
-
 
 class Gemma3Service:
     """
@@ -46,7 +42,7 @@ class Gemma3Service:
                 )
             return config
         except Exception as e:
-            logger.error("Error getting AI configuration: %s", e)
+            
             raise
     
     def _build_messages(self, prompt: str, image_urls: List[str] = None) -> List[Dict]:
@@ -141,8 +137,7 @@ class Gemma3Service:
                 ai_request.processing_time = processing_time
                 ai_request.save()
                 
-                # Estadísticas eliminadas - no necesarias para funcionalidad básica
-                
+             
                 return {
                     'success': True,
                     'response': response_text,
@@ -163,9 +158,9 @@ class Gemma3Service:
             ai_request.processing_time = processing_time
             ai_request.save()
             
-            # Estadísticas eliminadas
             
-            logger.error("Gemma3 API request failed: %s", error_msg)
+            
+            
             
             return {
                 'success': False,
@@ -183,9 +178,9 @@ class Gemma3Service:
             ai_request.processing_time = processing_time
             ai_request.save()
             
-            # Estadísticas eliminadas
             
-            logger.error("Unexpected error in Gemma3 service: %s", error_msg)
+            
+            
             
             return {
                 'success': False,
@@ -194,8 +189,7 @@ class Gemma3Service:
                 'request_id': ai_request.id
             }
     
-    # Método _update_usage_stats eliminado - no necesario para funcionalidad básica
-    
+ 
     def health_check(self) -> Dict[str, Any]:
         """
         Verifica el estado del servicio de IA
@@ -296,7 +290,7 @@ class ProductAIService:
                 }
                 
             except json.JSONDecodeError as e:
-                logger.error(f"Error parsing AI response as JSON: {e}")
+            
                 return {
                     'success': False,
                     'error': 'Error procesando respuesta de IA',

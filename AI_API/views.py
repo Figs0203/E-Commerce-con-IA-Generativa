@@ -6,9 +6,7 @@ from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 
 from .services import Gemma3Service, ProductAIService
-import logging
 
-logger = logging.getLogger(__name__)
 
 
 
@@ -32,7 +30,7 @@ def health_check(request):
             return Response(health_status, status=status.HTTP_503_SERVICE_UNAVAILABLE)
             
     except Exception as e:
-        logger.error(f"Error in health_check: {e}")
+        
         return Response(
             {'status': 'unhealthy', 'error': str(e)}, 
             status=status.HTTP_503_SERVICE_UNAVAILABLE
@@ -81,7 +79,7 @@ def analyze_product_image_upload(request):
         image_url = f"data:{content_type};base64,{image_base64}"
         
         # Log para debugging
-        logger.info(f"Image converted to data URL, size: {len(image_base64)} chars")
+        
         
         # Realizar análisis completo
         ai_service = ProductAIService()
@@ -102,7 +100,7 @@ def analyze_product_image_upload(request):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
     except Exception as e:
-        logger.error(f"Error in analyze_product_image_upload: {e}")
+        
         return Response(
             {'error': 'Error interno del servidor'}, 
             status=status.HTTP_500_INTERNAL_SERVER_ERROR
