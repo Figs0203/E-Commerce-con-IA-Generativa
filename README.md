@@ -120,3 +120,4 @@ python manage.py runserver
 
 
 **Note**: This is a Django-based **AI-powered e-commerce platform** that revolutionizes product listing creation. The AI features are the core innovation that sets this platform apart from traditional e-commerce solutions. This is not just another marketplace - it's an intelligent tool that automates the most tedious part of selling online.
+# Taller-01---Grupos-Arquitectura
