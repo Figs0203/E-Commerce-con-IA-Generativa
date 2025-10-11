@@ -12,8 +12,20 @@
           <li class="nav-item">
             <a class="nav-link" href="{% url 'products' %}">Mis Productos</a>
           </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'create_product' %}">Crear Producto</a>
+          <li class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <i class="fas fa-plus-circle"></i> Crear Productos
+            </a>
+            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
+              <li><a class="dropdown-item" href="{% url 'create_product' %}">
+                <i class="fas fa-plus"></i> Crear 1 Producto
+              </a></li>
+              <li><hr class="dropdown-divider"></li>
+              <li><a class="dropdown-item" href="{% url 'bulk_create_products' %}">
+                <i class="fas fa-magic"></i> Carga Masiva con IA
+                <small class="d-block text-muted">Hasta 10 productos</small>
+              </a></li>
+            </ul>
           </li>
           <li class="nav-item">
             <a class="nav-link" href="{% url 'my_wishlist' %}">Lista de deseos</a>

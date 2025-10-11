@@ -55,6 +55,3 @@ class AIConfigurationAdmin(admin.ModelAdmin):
             'classes': ('collapse',)
         }),
     )
-
-
-# ProductAIGenerationAdmin eliminado - no necesario para funcionalidad básica

@@ -1,13 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from .models import Product, Category
-from .forms import ProductForm
-from django.contrib.auth.models import User
 from .models import Product, Category, Wishlist
+from .forms import ProductForm
 
 
 def home(request):
@@ -85,10 +82,8 @@ def create_product(request):
             return redirect('home')
     else:
         form = ProductForm()
-    
-    # Obtener todas las categorías para el formulario
+
     categories = Category.objects.all()
-    
     return render(request, 'create_product.html', {'form': form, 'categories': categories})
 
 @login_required
@@ -102,10 +97,8 @@ def edit_product(request, pk):
             return redirect('home')
     else:
         form = ProductForm(instance=product)
-    
-    # Obtener todas las categorías para el formulario
+
     categories = Category.objects.all()
-    
     return render(request, 'edit_product.html', {'form': form, 'product': product, 'categories': categories})
 
 @login_required
@@ -129,19 +122,6 @@ def product_detail(request, pk):
         'product': product,
         'in_wishlist': in_wishlist
     })
-
-def toggle_wishlist(request, pk):
-    product = get_object_or_404(Product, pk=pk, status='published')
-    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
-
-@login_required
-def my_wishlist(request):
-    wishlist_items = Wishlist.objects.filter(user=request.user).select_related('product')
-    return render(request, 'wishlist.html', {'wishlist_items': wishlist_items})
-
-    if not created:
-        wishlist_item.delete()  # si ya existía, se elimina (toggle)
-    return redirect('product_detail', pk=pk)
 
 @login_required
 def my_wishlist(request):
@@ -168,3 +148,11 @@ def profile(request):
 def products(request):
     products = Product.objects.filter(seller=request.user)
     return render(request, 'products.html', {'products': products})
+
+@login_required
+def bulk_create_products(request):
+    """
+    Vista para carga masiva de productos
+    """
+    categories = Category.objects.all()
+    return render(request, 'bulk_create_products.html', {'categories': categories})

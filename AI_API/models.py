@@ -58,9 +58,6 @@ class AIRequest(models.Model):
         return self.has_images and self.prompt
 
 
-# Eliminado AIUsageStats - No necesario para funcionalidad básica
-
-
 class AIConfiguration(models.Model):
     """
     Modelo para configuraciones del servicio de IA
@@ -84,5 +81,3 @@ class AIConfiguration(models.Model):
     def __str__(self):
         return f"AI Config: {self.name} - {'Active' if self.is_active else 'Inactive'}"
 
-
-# Eliminado ProductAIGeneration - No necesario para funcionalidad básica

@@ -42,7 +42,6 @@ class Gemma3Service:
                 )
             return config
         except Exception as e:
-            
             raise
     
     def _build_messages(self, prompt: str, image_urls: List[str] = None) -> List[Dict]:
@@ -158,10 +157,6 @@ class Gemma3Service:
             ai_request.processing_time = processing_time
             ai_request.save()
             
-            
-            
-            
-            
             return {
                 'success': False,
                 'error': error_msg,
@@ -177,10 +172,6 @@ class Gemma3Service:
             ai_request.error_message = error_msg
             ai_request.processing_time = processing_time
             ai_request.save()
-            
-            
-            
-            
             
             return {
                 'success': False,
@@ -232,42 +223,70 @@ class ProductAIService:
     
     # Funciones individuales eliminadas - solo se usa analyze_product_complete()
     
-    def analyze_product_complete(self, image_url: str, user=None) -> Dict[str, Any]:
+    def analyze_product_complete(self, image_urls, user=None) -> Dict[str, Any]:
         """
-        Análisis completo de producto desde una imagen para auto-llenar formulario
+        Análisis completo de producto desde una o múltiples imágenes para auto-llenar formulario
         Genera título, descripción, categoría sugerida y tags automáticamente
+
+        Args:
+            image_urls: String (una imagen) o lista de strings (múltiples imágenes)
+            user: Usuario que realiza la petición
         """
-        prompt = """Analiza esta imagen de producto y genera información completa para un e-commerce. 
-        Responde SOLO en formato JSON con la siguiente estructura exacta:
-        {
-            "title": "Título atractivo del producto (máximo 60 caracteres)",
-            "description": "Descripción detallada y convincente del producto (máximo 200 palabras)",
-            "suggested_category": "Categoría más apropiada para este producto (debe ser una de: Ropa, Electrónicos, Hogar, Deportes, Libros, Juguetes, Belleza, Automotriz, Jardín, Oficina)",
-            "tags": "tag1, tag2, tag3, tag4, tag5",
-            "price_suggestion": "Precio estimado en USD basado en el producto"
-        }
-        
-        El título debe ser atractivo y optimizado para SEO.
-        La descripción debe destacar características clave y beneficios.
-        La categoría DEBE ser una de estas opciones exactas: Ropa, Electrónicos, Hogar, Deportes, Libros, Juguetes, Belleza, Automotriz, Jardín, Oficina.
-        Los tags deben ser palabras clave útiles para búsqueda.
-        El precio debe ser realista basado en el tipo de producto."""
-        
+        # Convertir a lista si es un solo string
+        if isinstance(image_urls, str):
+            image_urls = [image_urls]
+
+        # Ajustar prompt según número de imágenes
+        if len(image_urls) == 1:
+            prompt = """Analiza esta imagen de producto y genera información completa para un e-commerce.
+            Responde SOLO en formato JSON con la siguiente estructura exacta:
+            {
+                "title": "Título atractivo del producto (máximo 60 caracteres)",
+                "description": "Descripción detallada y convincente del producto (máximo 200 palabras)",
+                "suggested_category": "Categoría más apropiada para este producto (debe ser una de: Ropa, Electrónicos, Hogar, Deportes, Libros, Juguetes, Belleza, Automotriz, Jardín, Oficina)",
+                "tags": "tag1, tag2, tag3, tag4, tag5",
+                "price_suggestion": "Precio estimado en USD basado en el producto"
+            }
+
+            El título debe ser atractivo y optimizado para SEO.
+            La descripción debe destacar características clave y beneficios.
+            La categoría DEBE ser una de estas opciones exactas: Ropa, Electrónicos, Hogar, Deportes, Libros, Juguetes, Belleza, Automotriz, Jardín, Oficina.
+            Los tags deben ser palabras clave útiles para búsqueda.
+            El precio debe ser realista basado en el tipo de producto."""
+        else:
+            prompt = f"""Analiza estas {len(image_urls)} imágenes del mismo producto y genera información completa para un e-commerce.
+            Considera TODAS las imágenes para generar una descripción más completa y precisa.
+            Responde SOLO en formato JSON con la siguiente estructura exacta:
+            {{
+                "title": "Título atractivo del producto (máximo 60 caracteres)",
+                "description": "Descripción detallada y convincente basada en TODAS las imágenes (máximo 250 palabras)",
+                "suggested_category": "Categoría más apropiada (debe ser una de: Ropa, Electrónicos, Hogar, Deportes, Libros, Juguetes, Belleza, Automotriz, Jardín, Oficina)",
+                "tags": "tag1, tag2, tag3, tag4, tag5, tag6",
+                "price_suggestion": "Precio estimado en USD basado en el producto"
+            }}
+
+            IMPORTANTE: Analiza TODAS las imágenes proporcionadas para crear una descripción completa.
+            El título debe ser atractivo y optimizado para SEO.
+            La descripción debe integrar detalles visibles en todas las imágenes.
+            La categoría DEBE ser una de estas opciones exactas: Ropa, Electrónicos, Hogar, Deportes, Libros, Juguetes, Belleza, Automotriz, Jardín, Oficina.
+            Los tags deben cubrir aspectos visibles en las diferentes imágenes.
+            El precio debe ser realista basado en el tipo de producto."""
+
         result = self.gemma_service.generate_response(
             prompt=prompt,
-            image_urls=[image_url],
-            max_tokens=500,
+            image_urls=image_urls,
+            max_tokens=600,
             temperature=0.7,
             request_type='product_analysis',
             user=user
         )
-        
+
         if result['success']:
             try:
                 # Intentar parsear la respuesta como JSON
                 import json
                 response_text = result['response']
-                
+
                 # Limpiar la respuesta para extraer solo el JSON
                 if '```json' in response_text:
                     json_start = response_text.find('```json') + 7
@@ -279,18 +298,19 @@ class ProductAIService:
                     json_text = response_text[json_start:json_end]
                 else:
                     json_text = response_text
-                
+
                 parsed_data = json.loads(json_text)
-                
+
                 return {
                     'success': True,
                     'data': parsed_data,
                     'request_id': result.get('request_id'),
-                    'processing_time': result.get('processing_time')
+                    'processing_time': result.get('processing_time'),
+                    'images_count': len(image_urls)
                 }
-                
+
             except json.JSONDecodeError as e:
-            
+
                 return {
                     'success': False,
                     'error': 'Error procesando respuesta de IA',

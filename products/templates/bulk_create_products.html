@@ -1,0 +1,336 @@
+{% extends "base.html" %}
+{% block title %}Carga Masiva de Productos{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-10 offset-md-1">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="text-center">Carga Masiva de Productos con IA</h3>
+                    <p class="text-center text-muted mb-0">Sube múltiples imágenes y la IA creará automáticamente un producto para cada una</p>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle"></i> <strong>Cómo funciona:</strong>
+                        <ul class="mb-0 mt-2">
+                            <li>Selecciona hasta 10 imágenes de productos</li>
+                            <li>La IA analizará cada imagen automáticamente</li>
+                            <li>Se creará un producto separado para cada imagen</li>
+                            <li>Puedes editar los productos generados después</li>
+                        </ul>
+                    </div>
+
+                    <form id="bulk-upload-form" enctype="multipart/form-data">
+                        {% csrf_token %}
+
+                        <div class="mb-4">
+                            <label for="product-images" class="form-label">
+                                <i class="fas fa-images"></i> Seleccionar Imágenes de Productos (Máximo 10)
+                            </label>
+                            <input type="file"
+                                   name="images"
+                                   id="product-images"
+                                   class="form-control"
+                                   accept="image/*"
+                                   multiple
+                                   required>
+                            <small class="text-muted">Cada imagen se convertirá en un producto separado</small>
+                        </div>
+
+                        <!-- Preview de imágenes -->
+                        <div id="images-preview" class="mb-4"></div>
+
+                        <!-- Opciones comunes -->
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5>Opciones Comunes (Opcional)</h5>
+                                <small class="text-muted">Estos valores se aplicarán a todos los productos si la IA no puede determinarlos</small>
+                            </div>
+                            <div class="card-body">
+                                <div class="row">
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Categoría por Defecto</label>
+                                            <select name="default_category" id="default-category" class="form-control">
+                                                <option value="">La IA decidirá</option>
+                                                {% for category in categories %}
+                                                    <option value="{{ category.id }}">{{ category.name }}</option>
+                                                {% endfor %}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="mb-3">
+                                            <label class="form-label">Estado</label>
+                                            <select name="status" id="status" class="form-control">
+                                                <option value="draft">Borrador (revisar antes de publicar)</option>
+                                                <option value="published">Publicado (visible inmediatamente)</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" id="start-upload-btn" class="btn btn-primary" disabled>
+                                <i class="fas fa-magic"></i> Crear Productos con IA
+                            </button>
+                            <a href="{% url 'home' %}" class="btn btn-secondary">Cancelar</a>
+                        </div>
+                    </form>
+
+                    <!-- Progress Section -->
+                    <div id="progress-section" class="mt-4" style="display: none;">
+                        <h5>Procesando Productos...</h5>
+                        <div class="progress mb-3">
+                            <div id="progress-bar"
+                                 class="progress-bar progress-bar-striped progress-bar-animated"
+                                 role="progressbar"
+                                 style="width: 0%"></div>
+                        </div>
+                        <div id="progress-details"></div>
+                    </div>
+
+                    <!-- Results Section -->
+                    <div id="results-section" class="mt-4" style="display: none;">
+                        <h5>Resultados</h5>
+                        <div id="results-content"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .image-preview-item {
+        position: relative;
+        display: inline-block;
+        margin: 10px;
+    }
+    .image-preview-thumb {
+        width: 120px;
+        height: 120px;
+        object-fit: cover;
+        border: 2px solid #dee2e6;
+        border-radius: 8px;
+    }
+    .image-preview-badge {
+        position: absolute;
+        top: -8px;
+        right: -8px;
+        background: #007bff;
+        color: white;
+        border-radius: 50%;
+        width: 24px;
+        height: 24px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: bold;
+    }
+    .product-result {
+        border-left: 4px solid #28a745;
+        padding: 10px;
+        margin-bottom: 10px;
+        background: #f8f9fa;
+    }
+    .product-result.error {
+        border-left-color: #dc3545;
+    }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('bulk-upload-form');
+    const imagesInput = document.getElementById('product-images');
+    const imagesPreview = document.getElementById('images-preview');
+    const startBtn = document.getElementById('start-upload-btn');
+    const progressSection = document.getElementById('progress-section');
+    const progressBar = document.getElementById('progress-bar');
+    const progressDetails = document.getElementById('progress-details');
+    const resultsSection = document.getElementById('results-section');
+    const resultsContent = document.getElementById('results-content');
+
+    // Preview de imágenes seleccionadas
+    imagesInput.addEventListener('change', function() {
+        const files = Array.from(this.files);
+
+        if (files.length > 10) {
+            alert('Máximo 10 imágenes permitidas. Se seleccionarán las primeras 10.');
+            // Limitar a 10 archivos
+            const dt = new DataTransfer();
+            files.slice(0, 10).forEach(file => dt.items.add(file));
+            this.files = dt.files;
+            return;
+        }
+
+        imagesPreview.innerHTML = '';
+        startBtn.disabled = files.length === 0;
+
+        files.forEach((file, index) => {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                const div = document.createElement('div');
+                div.className = 'image-preview-item';
+                div.innerHTML = `
+                    <img src="${e.target.result}" class="image-preview-thumb" alt="Preview ${index + 1}">
+                    <div class="image-preview-badge">${index + 1}</div>
+                `;
+                imagesPreview.appendChild(div);
+            };
+            reader.readAsDataURL(file);
+        });
+    });
+
+    // Manejar envío del formulario
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        const files = Array.from(imagesInput.files);
+        if (files.length === 0) {
+            alert('Por favor selecciona al menos una imagen');
+            return;
+        }
+
+        // Deshabilitar botón y mostrar progreso
+        startBtn.disabled = true;
+        progressSection.style.display = 'block';
+        resultsSection.style.display = 'none';
+        resultsContent.innerHTML = '';
+
+        const defaultCategory = document.getElementById('default-category').value;
+        const status = document.getElementById('status').value;
+
+        let successCount = 0;
+        let errorCount = 0;
+        const results = [];
+
+        // Procesar cada imagen
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const progress = ((i + 1) / files.length) * 100;
+
+            progressBar.style.width = progress + '%';
+            progressBar.textContent = Math.round(progress) + '%';
+            progressDetails.innerHTML = `
+                <p>Procesando imagen ${i + 1} de ${files.length}: <strong>${file.name}</strong></p>
+                <p class="text-muted">Analizando con IA y creando producto...</p>
+            `;
+
+            try {
+                const result = await processImage(file, defaultCategory, status);
+                successCount++;
+                results.push({
+                    success: true,
+                    filename: file.name,
+                    product: result
+                });
+            } catch (error) {
+                errorCount++;
+                results.push({
+                    success: false,
+                    filename: file.name,
+                    error: error.message
+                });
+            }
+        }
+
+        // Mostrar resultados
+        showResults(results, successCount, errorCount);
+        startBtn.disabled = false;
+    });
+
+    async function processImage(file, defaultCategory, status) {
+        // Primero, analizar con IA
+        const aiFormData = new FormData();
+        aiFormData.append('image', file);
+
+        const aiResponse = await fetch('/api/ai/analyze-product/', {
+            method: 'POST',
+            body: aiFormData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+
+        const aiData = await aiResponse.json();
+
+        if (!aiData.success) {
+            throw new Error('Error en análisis de IA: ' + (aiData.error || 'Error desconocido'));
+        }
+
+        // Crear producto con datos de IA
+        const productFormData = new FormData();
+        productFormData.append('image', file);
+        productFormData.append('title', aiData.data.title || 'Producto sin título');
+        productFormData.append('description', aiData.data.description || 'Sin descripción');
+        productFormData.append('price', extractPrice(aiData.data.price_suggestion) || '0');
+        productFormData.append('category', defaultCategory || '');
+        productFormData.append('suggested_category', aiData.data.suggested_category || '');
+        productFormData.append('tags', aiData.data.tags || '');
+        productFormData.append('status', status);
+
+        const productResponse = await fetch('/api/products/bulk-create/', {
+            method: 'POST',
+            body: productFormData,
+            headers: {
+                'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+            }
+        });
+
+        const productData = await productResponse.json();
+
+        if (!productData.success) {
+            throw new Error('Error creando producto: ' + (productData.error || 'Error desconocido'));
+        }
+
+        return productData.product;
+    }
+
+    function extractPrice(priceString) {
+        if (!priceString) return null;
+        const match = priceString.match(/[\d.]+/);
+        return match ? match[0] : null;
+    }
+
+    function showResults(results, successCount, errorCount) {
+        progressSection.style.display = 'none';
+        resultsSection.style.display = 'block';
+
+        let html = `
+            <div class="alert alert-${successCount > 0 ? 'success' : 'danger'}">
+                <h5>Proceso Completado</h5>
+                <p><strong>${successCount}</strong> productos creados exitosamente</p>
+                ${errorCount > 0 ? `<p><strong>${errorCount}</strong> errores encontrados</p>` : ''}
+            </div>
+        `;
+
+        results.forEach((result, index) => {
+            if (result.success) {
+                html += `
+                    <div class="product-result">
+                        <strong>${index + 1}. ${result.filename}</strong> ✓
+                        <p class="mb-1">Producto: ${result.product.title}</p>
+                        <a href="/product/${result.product.id}/" target="_blank" class="btn btn-sm btn-outline-primary">Ver Producto</a>
+                        <a href="/product/${result.product.id}/edit/" target="_blank" class="btn btn-sm btn-outline-secondary">Editar</a>
+                    </div>
+                `;
+            } else {
+                html += `
+                    <div class="product-result error">
+                        <strong>${index + 1}. ${result.filename}</strong> ✗
+                        <p class="text-danger mb-0">Error: ${result.error}</p>
+                    </div>
+                `;
+            }
+        });
+
+        resultsContent.innerHTML = html;
+    }
+});
+</script>
+{% endblock %}
