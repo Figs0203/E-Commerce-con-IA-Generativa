@@ -109,5 +109,3 @@ python manage.py migrate
 - **Comandos Personalizados**: https://docs.djangoproject.com/en/5.2/howto/custom-management-commands/
 
 ---
-
-**¡Tu proyecto ahora se configura automáticamente! 🎉**
