@@ -1,54 +1,58 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-  <div class="container">
-    <a class="navbar-brand" href="{% url 'home' %}">Productos Online</a>
-
-    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
-      <span class="navbar-toggler-icon"></span>
-    </button>
-
-    <div id="mainNav" class="collapse navbar-collapse">
-      <ul class="navbar-nav ms-auto">
-        {% if user.is_authenticated %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'products' %}">Mis Productos</a>
-          </li>
-          <li class="nav-item dropdown">
-            <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <i class="fas fa-plus-circle"></i> Crear Productos
-            </a>
-            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-              <li><a class="dropdown-item" href="{% url 'create_product' %}">
-                <i class="fas fa-plus"></i> Crear 1 Producto
-              </a></li>
-              <li><hr class="dropdown-divider"></li>
-              <li><a class="dropdown-item" href="{% url 'bulk_create_products' %}">
-                <i class="fas fa-magic"></i> Carga Masiva con IA
-                <small class="d-block text-muted">Hasta 10 productos</small>
-              </a></li>
+{% load static %}
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm">
+    <div class="container-fluid">
+        <a class="navbar-brand d-flex align-items-center" href="{% url 'home' %}">
+            <img src="{% static 'images/listify.png' %}" alt="Listify Logo" width="40" height="40" class="d-inline-block align-text-top me-2 rounded-circle">
+            <div>
+                <span class="fw-bold">Listify</span>
+                <small class="d-block text-white-50" style="font-size: 0.7em; line-height: 1;">Vende mas, escribe menos</small>
+            </div>
+        </a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0 align-items-center">
+                <li class="nav-item">
+                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
+                        <i class="fas fa-store me-1"></i>Catálogo
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="{% url 'about' %}">
+                        <i class="fas fa-info-circle me-1"></i>Acerca de
+                    </a>
+                </li>
+                {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fas fa-user-circle me-1"></i>{{ user.username }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="navbarDropdown">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="fas fa-user-edit me-2"></i>Mi Perfil</a></li>
+                            <li><a class="dropdown-item" href="{% url 'products' %}"><i class="fas fa-box-open me-2"></i>Mis Productos</a></li>
+                            <li><a class="dropdown-item" href="{% url 'my_wishlist' %}"><i class="fas fa-heart me-2"></i>Mi Wishlist</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'create_product' %}"><i class="fas fa-plus-circle me-2"></i>Crear Producto</a></li>
+                            <li><a class="dropdown-item" href="{% url 'bulk_create_products' %}"><i class="fas fa-magic me-2"></i>Carga Masiva</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <form action="{% url 'logout' %}" method="post" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="dropdown-item text-danger"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</button>
+                                </form>
+                            </li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
+                    </li>
+                    <li class="nav-item">
+                        <a href="{% url 'register' %}" class="btn btn-primary btn-sm ms-2">Registrarse</a>
+                    </li>
+                {% endif %}
             </ul>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'my_wishlist' %}">Lista de deseos</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'profile' %}">Perfil</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'logout' %}">Cerrar Sesión</a>
-          </li>
-        {% else %}
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'login' %}">Iniciar Sesión</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link" href="{% url 'register' %}">Registrarse</a>
-          </li>
-          <li class="nav-item">
-            <!-- corregido el typo "Nosostros" -> "Nosotros" -->
-            <a class="nav-link" href="{% url 'about' %}">Sobre Nosotros</a>
-          </li>
-        {% endif %}
-      </ul>
+        </div>
     </div>
-  </div>
 </nav>
