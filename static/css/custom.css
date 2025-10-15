@@ -1,0 +1,150 @@
+:root {
+    --primary-color: #e87a5d; /* Un naranja terracota cálido */
+    --secondary-color: #6c757d; /* Gris neutro de Bootstrap */
+    --accent-color: #f3b664; /* Un dorado suave */
+    --background-color: #fdfaf6; /* Blanco hueso muy claro */
+    --text-color: #4a4a4a; /* Gris oscuro para texto */
+    --card-bg: #ffffff;
+    --card-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+    --navbar-bg: #2c3e50; /* Un azul oscuro y profundo */
+}
+
+body {
+    background-color: var(--background-color);
+    color: var(--text-color);
+    font-family: 'Open Sans', 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif;
+}
+
+/* --- Barra de Navegación --- */
+.navbar.bg-dark {
+    background-color: var(--navbar-bg) !important;
+}
+
+.navbar-brand .fw-bold {
+    color: #ffffff;
+}
+
+.navbar-brand small {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* --- Botones --- */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: #d96a4d; /* Un poco más oscuro */
+    border-color: #d96a4d;
+}
+
+.btn-outline-primary {
+    color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-outline-primary:hover, .btn-outline-primary:focus {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+/* --- Tarjetas (Cards) --- */
+.card {
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    background-color: transparent;
+    border-bottom: 1px solid #f0f0f0;
+    font-weight: 500;
+}
+
+.card-img-top {
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+/* --- Formularios --- */
+.form-control {
+    border-radius: 8px;
+    border: 1px solid #ced4da;
+}
+
+.form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.25rem rgba(232, 122, 93, 0.25);
+}
+
+/* --- Badges y Alertas --- */
+.badge.bg-primary {
+    background-color: var(--accent-color) !important;
+    color: var(--text-color);
+}
+
+.alert-info {
+    background-color: #e7f3fe;
+    border-color: #d0e8fd;
+    color: #0c5460;
+}
+
+/* --- Títulos y Enlaces --- */
+h1, h2, h3, h4, h5, h6 {
+    font-family: 'Poppins', sans-serif;
+    color: #34495e; /* Un azul-gris más oscuro para títulos */
+    font-weight: 700;
+}
+
+a {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+a:hover {
+    color: #d96a4d;
+    text-decoration: underline;
+}
+
+.navbar-nav .nav-link, .dropdown-item a {
+    text-decoration: none !important;
+}
+
+/* --- Pie de Página (Footer) --- */
+body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main {
+    flex: 1;
+}
+
+.footer {
+    background-color: var(--navbar-bg);
+    color: rgba(255, 255, 255, 0.7);
+    border-top: 3px solid var(--primary-color);
+}
+
+.footer .footer-link, .footer .text-muted {
+    color: rgba(255, 255, 255, 0.7) !important;
+}
+
+.footer .social-icon {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 1.2rem;
+    margin-left: 15px;
+    transition: color 0.2s ease-in-out;
+}
+
+.footer .social-icon:hover {
+    color: var(--accent-color);
+}
