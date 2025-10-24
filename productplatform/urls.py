@@ -22,6 +22,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('products.urls')),
+    path('users/', include('users.urls')),
 
     # AI API endpoints
     path('api/ai/', include('AI_API.urls')),
