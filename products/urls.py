@@ -15,16 +15,13 @@ urlpatterns = [
     # API endpoints
     path('api/products/bulk-create/', api_views.bulk_create_product, name='api_bulk_create_product'),
 
-    path('login/', views.user_login, name='login'),
-    path('logout/', views.user_logout, name='logout'),
-    path('register/', views.register, name='register'),
-    path('profile/', views.profile, name='profile' ),
+    #path('login/', views.user_login, name='login'),
+    #path('logout/', views.user_logout, name='logout'),
+    #path('register/', views.register, name='register'),
+    #path('profile/', views.profile, name='profile' ),
 
-    path('about/', views.about, name='about'),
+    #path('about/', views.about, name='about'),
 
     path('wishlist/', views.my_wishlist, name='my_wishlist'),
     path('wishlist/toggle/<int:pk>/', views.toggle_wishlist, name='toggle_wishlist'),
-
-
-
 ]
