@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('products', '0006_wishlist'),
+        ('products', '0002_category_product_delete_movie'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 

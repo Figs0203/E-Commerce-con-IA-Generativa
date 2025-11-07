@@ -22,6 +22,4 @@ urlpatterns = [
 
     #path('about/', views.about, name='about'),
 
-    path('wishlist/', views.my_wishlist, name='my_wishlist'),
-    path('wishlist/toggle/<int:pk>/', views.toggle_wishlist, name='toggle_wishlist'),
 ]

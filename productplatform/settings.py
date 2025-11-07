@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'products',
     'AI_API',
     'users',
+    'wishlist',
 ]
 
 MIDDLEWARE = [

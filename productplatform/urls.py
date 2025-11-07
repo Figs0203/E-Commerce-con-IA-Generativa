@@ -23,6 +23,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('products.urls')),
     path('users/', include('users.urls')),
+    path('wishlist/', include(('wishlist.urls', 'wishlist'), namespace='wishlist')),
 
     # AI API endpoints
     path('api/ai/', include('AI_API.urls')),

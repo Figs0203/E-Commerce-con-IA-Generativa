@@ -3,7 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib import messages
-from .models import Product, Category, Wishlist
+from .models import Product, Category
+from wishlist.models import Wishlist
 from .forms import ProductForm
 
 
@@ -122,23 +123,6 @@ def product_detail(request, pk):
         'product': product,
         'in_wishlist': in_wishlist
     })
-
-@login_required
-def my_wishlist(request):
-    wishlist_items = Wishlist.objects.filter(user=request.user).select_related("product")
-    return render(request, 'my_wishlist.html', {"wishlist_items": wishlist_items})
-
-@login_required
-def toggle_wishlist(request, pk):
-    product = get_object_or_404(Product, pk=pk)
-
-    wishlist_item, created = Wishlist.objects.get_or_create(user=request.user, product=product)
-
-    if not created:
-        # Si ya existía, lo quitamos
-        wishlist_item.delete()
-
-    return redirect('product_detail', pk=pk)
 
 
 #def profile(request):
